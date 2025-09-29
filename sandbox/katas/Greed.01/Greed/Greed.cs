@@ -16,26 +16,8 @@ public class Greed
             fiveDiceSingleRoll[i] = number.Next(1, 7);
         }
 
-        /* Možnost, jak vypsat rovnou všechny int z pole:
-        Array.ForEach(fiveDiceRoll, Console.Write);*/
-
-        /*Převedení hodnot z pole na text a následný výpis hodnot v jedné řádce s oddělovačem:
-        foreach (int i in fiveDiceSingleRoll)
-        {
-            i.ToString();
-        }
-        Console.WriteLine("[{0}]", string.Join(", ", fiveDiceSingleRoll));*/
-
-        /*Převedení pole intů do pole stringů:
-        string[] fiveDiceSingleRollString = new string[5];
-
-        foreach (int i in fiveDiceSingleRoll)
-        {
-            i.ToString();
-        }*/
-
         //Výpis padlých čísel a počtu jejich výskytů, finální skórování:
-        var diceDots = fiveDiceSingleRoll.GroupBy(v => v);
+        var diceDots = fiveDiceSingleRoll.GroupBy(i => i);
         int finalScore = 0;
 
         foreach (var numberOfDots in diceDots)
