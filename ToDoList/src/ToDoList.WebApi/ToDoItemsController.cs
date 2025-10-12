@@ -8,43 +8,108 @@ using ToDoList.Domain.Models;
 [ApiController] //třída podporující HTTP responses
 public class ToDoItemsController : ControllerBase
 {
-    private static List<ToDoItem> items = []; //list vytvořený In-memory
+    private static readonly List<ToDoItem> items = []; //list vytvořený In-memory
 
     [HttpPost]
-    public IActionResult Create(ToDoItemCreateRequestDto request) //používáme DTO - Data Transfer Object
+    public IActionResult Create([FromBody] ToDoItemCreateRequestDto request)  //používáme DTO - Data Transfer Object
     {
-        return Ok();
+        try
+        {
+            var item = new ToDoItem
+            {
+                ToDoItemId = items.Count == 0 ? 1 : items.Max(x => x.ToDoItemId) + 1,
+                Name = request.Name,
+                Description = request.Description,
+                IsCompleted = request.IsCompleted,
+            };
+            items.Add(item);
+            return Ok(StatusCodes.Status201Created);
+        }
+
+        catch (Exception e)
+        {
+            return Problem(e.Message, null, StatusCodes.Status500InternalServerError); //500
+        }
+
+
+        finally
+        {
+            Console.WriteLine("Metoda Create proběhla.");
+        }
     }
 
     [HttpGet]
     public IActionResult Read() //api/ToDoItems GET
     {
-        return Ok();
+        if (items == null)
+        {
+            return NotFound(); //404
+        }
+
+        try
+        {
+            var listOfItems = items.Select(ToDoItemGetResponseDto.FromDomain).ToList();
+
+            return Ok(listOfItems);
+        }
+
+        catch (Exception e)
+        {
+            return Problem(e.Message, null, StatusCodes.Status500InternalServerError); //500
+        }
+
+        finally
+        {
+            Console.WriteLine("Metoda Get proběhla.");
+        }
     }
 
-    [HttpGet("{ToDoItemsId:int}")]
-    public IActionResult ReadById(int ToDoItemsId) //api/ToDoItems/<id> GET
-    {
-        return Ok();
-    }
-
-    [HttpPut("{ToDoItemsId:int}")]
-    public IActionResult UpdateById(int ToDoItemsId, ToDoItemUpdateRequestDto request)
+    [HttpGet("{toDoItemsId:int}")]
+    public IActionResult ReadById(int toDoItemsId) //api/ToDoItems/<id> GET
     {
         try
         {
-            throw new Exception("Něco se pravdu nepovedlo.");
+            var item = items.FirstOrDefault(x => x.ToDoItemId == toDoItemsId);
+
+            if (item == null)
+            {
+                return NotFound(); //404
+            }
+
+            var dto = ToDoItemGetResponseDto.FromDomain(item);
+            return Ok(dto);
         }
 
-        catch (Exception ex)
+        catch (Exception e)
         {
-            return Problem(ex.Message, null, StatusCodes.Status500InternalServerError); //500
+            return Problem(e.Message, null, StatusCodes.Status500InternalServerError); //500
+        }
+
+        finally
+        {
+            Console.WriteLine("Metoda GetById proběhla.");
         }
     }
 
-    [HttpDelete("{ToDoItemsId:int}")]
-    public IActionResult DeleteById(int ToDoItemsId)
-    {
-        return Ok();
-    }
+    /*
+    [HttpPut("{ToDoItemsId:int}")]
+     public IActionResult UpdateById(int ToDoItemsId, ToDoItemUpdateRequestDto request)
+     {
+         try
+         {
+             throw new Exception("Něco se pravdu nepovedlo.");
+         }
+
+         catch (Exception ex)
+         {
+             return Problem(ex.Message, null, StatusCodes.Status500InternalServerError); //500
+         }
+     }
+
+     [HttpDelete("{ToDoItemsId:int}")]
+     public IActionResult DeleteById(int ToDoItemsId)
+     {
+         return Ok();
+     }
+     */
 }
