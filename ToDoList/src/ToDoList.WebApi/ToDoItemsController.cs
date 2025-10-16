@@ -8,20 +8,20 @@ using ToDoList.Domain.Models;
 [ApiController] //třída podporující HTTP responses
 public class ToDoItemsController : ControllerBase
 {
-    private static readonly List<ToDoItem> items = []; //list vytvořený In-memory
+    private static readonly List<ToDoItem> items = //list vytvořený In-memory
+    [
+        new() {ToDoItemId = 1, Name = "Baby Care", Description = "Go for a walk", IsCompleted = false },
+        new() {ToDoItemId = 2, Name = "Housework", Description = "Do laundry",    IsCompleted = false },
+        new() {ToDoItemId = 3, Name = "Homework",  Description = "C#",            IsCompleted = false },
+    ];
 
     [HttpPost]
     public IActionResult Create([FromBody] ToDoItemCreateRequestDto request)  //používáme DTO - Data Transfer Object
     {
+        var item = request.ToDomain();
+
         try
         {
-            var item = new ToDoItem
-            {
-                ToDoItemId = items.Count == 0 ? 1 : items.Max(x => x.ToDoItemId) + 1,
-                Name = request.Name,
-                Description = request.Description,
-                IsCompleted = request.IsCompleted,
-            };
             items.Add(item);
             return Ok(StatusCodes.Status201Created);
         }
@@ -30,16 +30,10 @@ public class ToDoItemsController : ControllerBase
         {
             return Problem(e.Message, null, StatusCodes.Status500InternalServerError); //500
         }
-
-
-        finally
-        {
-            Console.WriteLine("Metoda Create proběhla.");
-        }
     }
 
     [HttpGet]
-    public IActionResult Read() //api/ToDoItems GET
+    public ActionResult<IEnumerable<ToDoItemGetResponseDto>> Read() //api/ToDoItems GET
     {
         if (items == null)
         {
@@ -56,11 +50,6 @@ public class ToDoItemsController : ControllerBase
         catch (Exception e)
         {
             return Problem(e.Message, null, StatusCodes.Status500InternalServerError); //500
-        }
-
-        finally
-        {
-            Console.WriteLine("Metoda Get proběhla.");
         }
     }
 
@@ -84,32 +73,51 @@ public class ToDoItemsController : ControllerBase
         {
             return Problem(e.Message, null, StatusCodes.Status500InternalServerError); //500
         }
+    }
 
-        finally
+    [HttpPut("{toDoItemsId:int}")]
+    public IActionResult UpdateById(int toDoItemsId, [FromBody] ToDoItemUpdateRequestDto request) // api/ToDoItems/<id> PUT
+    {
+        var updatedItem = request.ToDomain();
+
+        try
         {
-            Console.WriteLine("Metoda GetById proběhla.");
+            var item = items.FirstOrDefault(x => x.ToDoItemId == toDoItemsId);
+
+            if (item == null)
+            {
+                return NotFound(); //404
+            }
+
+            return NoContent(); //204
+        }
+
+        catch (Exception e)
+        {
+            return Problem(e.Message, null, StatusCodes.Status500InternalServerError); //500
         }
     }
 
-    /*
-    [HttpPut("{ToDoItemsId:int}")]
-     public IActionResult UpdateById(int ToDoItemsId, ToDoItemUpdateRequestDto request)
-     {
-         try
-         {
-             throw new Exception("Něco se pravdu nepovedlo.");
-         }
+    [HttpDelete("{toDoItemsId:int}")]
+    public IActionResult DeleteById(int toDoItemsId) // api/ToDoItems/<id> DELETE
+    {
+        try
+        {
+            var item = items.FirstOrDefault(x => x.ToDoItemId == toDoItemsId);
 
-         catch (Exception ex)
-         {
-             return Problem(ex.Message, null, StatusCodes.Status500InternalServerError); //500
-         }
-     }
+            if (item == null)
+            {
+                return NotFound(); //404
+            }
 
-     [HttpDelete("{ToDoItemsId:int}")]
-     public IActionResult DeleteById(int ToDoItemsId)
-     {
-         return Ok();
-     }
-     */
+            items.Remove(item);
+
+            return NoContent(); //204
+        }
+
+        catch (Exception e)
+        {
+            return Problem(e.Message, null, StatusCodes.Status500InternalServerError); //500
+        }
+    }
 }
