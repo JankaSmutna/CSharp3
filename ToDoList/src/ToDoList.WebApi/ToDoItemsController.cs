@@ -22,6 +22,7 @@ public class ToDoItemsController : ControllerBase
 
         try
         {
+            item.ToDoItemId = items.Count == 0 ? 1 : items.Max(x => x.ToDoItemId) + 1;
             items.Add(item);
             return Ok(StatusCodes.Status201Created);
         }
