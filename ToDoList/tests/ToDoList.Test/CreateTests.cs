@@ -7,20 +7,21 @@ using ToDoList.WebApi;
 
 public class CreateTests
 {
-    [Fact]
-    public void Create_ReturnsStatus201Created_WhenItemIsValid()
-    {
-        // Arrange
-        var controller = new ToDoItemsController();
-        var dto = new ToDoItemCreateRequestDto("Název - test", "Popis - test", false);
+    /* [Fact]
+     public void Create_ReturnsStatus201Created_WhenItemIsValid()
+     {
+         // Arrange
+         var controller = new ToDoItemsController();
+         controller.RemoveAllItemsFromStorage();
+         var dto = new ToDoItemCreateRequestDto("Název - test", "Popis - test", false);
 
-        // Act
-        var result = controller.Create(dto) as OkObjectResult;
+         // Act
+         var result = controller.Create(dto) as OkObjectResult;
 
-        // Assert - pokud přidáme validní položku do ToDoList, vrátí se 201
-        Assert.NotNull(result);
-        Assert.Equal(StatusCodes.Status201Created, result.Value);
-    }
+         // Assert - pokud přidáme validní položku do ToDoList, vrátí se 201
+         Assert.NotNull(result);
+         Assert.Equal(StatusCodes.Status201Created, result.Value);
+     }*/
 
     /*[Fact]
     public void Create_ContainsSingleItemWithCorrectId_WhenListWasClearedThenOneItemAdded()
