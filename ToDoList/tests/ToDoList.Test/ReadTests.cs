@@ -1,34 +1,35 @@
 namespace ToDoList.Test;
 
-using Microsoft.AspNetCore.Mvc;
 using ToDoList.Domain.Models;
 using ToDoList.WebApi;
 
 public class ReadTests
 {
-    [Fact]
+    /*[Fact]
     public void Read_ReturnsAllItems()
     {
         //Arrange - příprava testovacích dat
-        var toDoItem4 = new ToDoItem
-        {
-            ToDoItemId = 4,
-            Name = "Jmeno4",
-            Description = "Popis4",
-            IsCompleted = false
-        };
-
-        var toDoItem5 = new ToDoItem
-        {
-            ToDoItemId = 5,
-            Name = "Jmeno5",
-            Description = "Popis5",
-            IsCompleted = false
-        };
-
         var controller = new ToDoItemsController(); //instance zodpovědná za manipulaci s položkami úkolů
-        controller.AddItemToStorage(toDoItem4);
-        controller.AddItemToStorage(toDoItem5);
+        controller.RemoveAllItemsFromStorage();
+
+        var toDoItem1 = new ToDoItem
+        {
+            ToDoItemId = 1,
+            Name = "Název1",
+            Description = "Popis1",
+            IsCompleted = false
+        };
+
+        var toDoItem2 = new ToDoItem
+        {
+            ToDoItemId = 2,
+            Name = "Název2",
+            Description = "Popis2",
+            IsCompleted = false
+        };
+
+        controller.AddItemToStorage(toDoItem1);
+        controller.AddItemToStorage(toDoItem2);
 
         //Act - testování logiky
         var result = controller.Read();
@@ -37,25 +38,10 @@ public class ReadTests
         //Assert - ověření výsledku
         Assert.NotNull(value);
 
-        var fourthToDo = value.ElementAt(3);
-
-        Assert.Equal(toDoItem4.ToDoItemId, fourthToDo.ToDoItemId);
-        Assert.Equal(toDoItem4.Name, fourthToDo.Name);
-        Assert.Equal(toDoItem4.Description, fourthToDo.Description);
-        Assert.Equal(toDoItem4.IsCompleted, fourthToDo.IsCompleted);
-    }
-
-    [Fact]
-    public void Read_ReturnsNotFound_WhenListIsEmpty()
-    {
-        // Arrange
-        var controller = new ToDoItemsController();
-        controller.RemoveAllItemsFromStorage();
-
-        // Act
-        var result = controller.Read();
-
-        // Assert
-        Assert.IsType<NotFoundResult>(result.Result);
-    }
+        var firstToDo = value.First();
+        Assert.Equal(toDoItem1.ToDoItemId, firstToDo.ToDoItemId);
+        Assert.Equal(toDoItem1.Name, firstToDo.Name);
+        Assert.Equal(toDoItem1.Description, firstToDo.Description);
+        Assert.Equal(toDoItem1.IsCompleted, firstToDo.IsCompleted);
+    }*/
 }

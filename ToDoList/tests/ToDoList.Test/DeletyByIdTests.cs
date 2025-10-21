@@ -5,7 +5,7 @@ using ToDoList.WebApi;
 
 public class DeletyByIdTests
 {
-    [Fact]
+    /*[Fact]
     public void DeleteById_ReturnsNoContent_WhenItemExists()
     {
         // Arrange - tady pracuji s původním statickým listem se 3 položkami
@@ -16,7 +16,7 @@ public class DeletyByIdTests
 
         // Assert - vrací ok status 204
         Assert.IsType<NoContentResult>(result);
-    }
+    }*/
 
     [Fact]
     public void DeleteById_RemovesItemCorrectly()

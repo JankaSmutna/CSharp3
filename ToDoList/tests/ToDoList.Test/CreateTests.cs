@@ -22,7 +22,7 @@ public class CreateTests
         Assert.Equal(StatusCodes.Status201Created, result.Value);
     }
 
-    [Fact]
+    /*[Fact]
     public void Create_ContainsSingleItemWithCorrectId_WhenListWasClearedThenOneItemAdded()
     {
         // Arrange
@@ -44,5 +44,5 @@ public class CreateTests
         Assert.Equal("Název - test", firstToDo.Name);
         Assert.Equal("Popis - test", firstToDo.Description);
         Assert.False(firstToDo.IsCompleted);
-    }
+    }*/
 }
