@@ -90,6 +90,10 @@ public class ToDoItemsController : ControllerBase
                 return NotFound(); //404
             }
 
+            item.Name = updatedItem.Name;
+            item.Description = updatedItem.Description;
+            item.IsCompleted = updatedItem.IsCompleted;
+
             return NoContent(); //204
         }
 
@@ -121,4 +125,10 @@ public class ToDoItemsController : ControllerBase
             return Problem(e.Message, null, StatusCodes.Status500InternalServerError); //500
         }
     }
+
+    //metoda pro přidání prvků do seznamu
+    public void AddItemToStorage(ToDoItem item) => items.Add(item);
+
+    //metoda pro vymazání všech prvků ze seznamu
+    public void RemoveAllItemsFromStorage() => items.Clear();
 }
