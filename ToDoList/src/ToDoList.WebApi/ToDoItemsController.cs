@@ -3,6 +3,7 @@ namespace ToDoList.WebApi;
 using Microsoft.AspNetCore.Mvc;
 using ToDoList.Domain.DTOs;
 using ToDoList.Domain.Models;
+using ToDoList.Persistence;
 
 [Route("api/[controller]")] //(https://)localhost:5000/api/ToDoItems - hledáme na tomto zdroji
 [ApiController] //třída podporující HTTP responses
@@ -14,6 +15,15 @@ public class ToDoItemsController : ControllerBase
         new() {ToDoItemId = 2, Name = "Housework", Description = "Do laundry",    IsCompleted = false },
         new() {ToDoItemId = 3, Name = "Homework",  Description = "C#",            IsCompleted = false },
     ];
+
+    private readonly ToDoItemsContext context;
+    public ToDoItemsController(ToDoItemsContext context)
+    {
+        this.context = context;
+        /*ToDoItem item = new ToDoItem { Name = "První úkol", Description = "První popis", IsCompleted = false };
+        context.ToDoItems.Add(item);
+        context.SaveChanges();*/
+    }
 
     [HttpPost]
     public IActionResult Create([FromBody] ToDoItemCreateRequestDto request)  //používáme DTO - Data Transfer Object
