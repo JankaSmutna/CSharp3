@@ -1,17 +1,17 @@
-﻿namespace ToDoList.Persistence;
+﻿namespace ToDoList.Test.IntegrationTests;
 
 using Microsoft.EntityFrameworkCore;
 using ToDoList.Domain.Models;
 
-public class ToDoItemsContext : DbContext
+public class ToDoItemsContextTest : DbContext
 {
-    public static ToDoItemsContext context;
     private readonly string connectionString;
-    public ToDoItemsContext(string connectionString = "DataSource=../../data/localdb.db")
+
+    public ToDoItemsContextTest(string connectionString = "Data Source=../../../IntegrationTests/data/localdb_test.db")
     {
         this.connectionString = connectionString;
-        Database.Migrate();
     }
+
     public DbSet<ToDoItem> ToDoItems { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

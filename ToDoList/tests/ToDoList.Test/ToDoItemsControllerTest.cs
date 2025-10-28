@@ -1,24 +1,17 @@
-namespace ToDoList.WebApi;
+namespace ToDoList.Test.IntegrationTests;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ToDoList.Domain.DTOs;
 using ToDoList.Domain.Models;
-using ToDoList.Persistence;
 
 [Route("api/[controller]")] //(https://)localhost:5000/api/ToDoItems - hledáme na tomto zdroji
 [ApiController] //třída podporující HTTP responses
-public class ToDoItemsController : ControllerBase
+public class ToDoItemsControllerTest : ControllerBase
 {
-    /*private static readonly List<ToDoItem> items = //list vytvořený In-memory
-    [
-        new() {ToDoItemId = 1, Name = "Baby Care", Description = "Go for a walk", IsCompleted = false },
-        new() {ToDoItemId = 2, Name = "Housework", Description = "Do laundry",    IsCompleted = false },
-        new() {ToDoItemId = 3, Name = "Homework",  Description = "C#",            IsCompleted = false },
-    ];*/
+    private readonly ToDoItemsContextTest context;
 
-    private readonly ToDoItemsContext context;
-
-    public ToDoItemsController(ToDoItemsContext context)
+    public ToDoItemsControllerTest(ToDoItemsContextTest context)
     {
         this.context = context;
     }
