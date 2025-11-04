@@ -1,6 +1,5 @@
 namespace ToDoList.Test.IntegrationTests;
 
-using Microsoft.Data.Sqlite;
 using ToDoList.Domain.Models;
 
 public class ReadTests
@@ -11,18 +10,7 @@ public class ReadTests
     public void Read_ReturnsAllItems()
     {
         // Arrange
-        // 1.  Vytvoření db
-        string? directory = Path.GetDirectoryName(DbPath);
-        if (!Directory.Exists(directory))
-        {
-            Directory.CreateDirectory(directory!);
-        }
-
-        // 2. Případné vyčištění předchozí db
-        if (File.Exists(DbPath))
-        {
-            File.Delete(DbPath);
-        }
+        TestBase.CreateDatabase();
 
         var context = new ToDoItemsContextTest($"Data Source={DbPath}");
         context.Database.EnsureCreated();
@@ -64,11 +52,6 @@ public class ReadTests
         Assert.Equal(todoItem1.IsCompleted, firstToDo.IsCompleted);
 
         // Cleanup
-        SqliteConnection.ClearAllPools();
-
-        if (File.Exists(DbPath))
-        {
-            File.Delete(DbPath);
-        }
+        TestBase.DeleteDatabase();
     }
 }

@@ -1,7 +1,6 @@
 namespace ToDoList.Test.IntegrationTests;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.Sqlite;
 using ToDoList.Domain.DTOs;
 using ToDoList.Domain.Models;
 
@@ -13,18 +12,7 @@ public class UpdateByIdTests
     public void UpdateById_ReturnsCorrectResult_WhenItemIsUpdated()
     {
         // Arrange
-        // 1.  Vytvoření db
-        string? directory = Path.GetDirectoryName(DbPath);
-        if (!Directory.Exists(directory))
-        {
-            Directory.CreateDirectory(directory!);
-        }
-
-        // 2. Případné vyčištění předchozí db
-        if (File.Exists(DbPath))
-        {
-            File.Delete(DbPath);
-        }
+        TestBase.CreateDatabase();
 
         var context = new ToDoItemsContextTest($"Data Source={DbPath}");
         context.Database.EnsureCreated();
@@ -43,7 +31,6 @@ public class UpdateByIdTests
 
         var controller = new ToDoItemsControllerTest(context);
         var dto = new ToDoItemUpdateRequestDto("Nový název", "Nový popis", true);
-        context.SaveChanges();
 
         // Act
         controller.UpdateById(1, dto);
@@ -61,11 +48,6 @@ public class UpdateByIdTests
         Assert.True(updatedItem.IsCompleted);
 
         // Cleanup
-        SqliteConnection.ClearAllPools();
-
-        if (File.Exists(DbPath))
-        {
-            File.Delete(DbPath);
-        }
+        TestBase.DeleteDatabase();
     }
 }

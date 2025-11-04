@@ -1,6 +1,7 @@
 namespace ToDoList.WebApi;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ToDoList.Domain.DTOs;
 using ToDoList.Domain.Models;
 using ToDoList.Persistence;
@@ -9,13 +10,6 @@ using ToDoList.Persistence;
 [ApiController] //třída podporující HTTP responses
 public class ToDoItemsController : ControllerBase
 {
-    /*private static readonly List<ToDoItem> items = //list vytvořený In-memory
-    [
-        new() {ToDoItemId = 1, Name = "Baby Care", Description = "Go for a walk", IsCompleted = false },
-        new() {ToDoItemId = 2, Name = "Housework", Description = "Do laundry",    IsCompleted = false },
-        new() {ToDoItemId = 3, Name = "Homework",  Description = "C#",            IsCompleted = false },
-    ];*/
-
     private readonly ToDoItemsContext context;
 
     public ToDoItemsController(ToDoItemsContext context)
@@ -30,12 +24,10 @@ public class ToDoItemsController : ControllerBase
 
         try
         {
-            /*item.ToDoItemId = items.Count == 0 ? 1 : items.Max(x => x.ToDoItemId) + 1;
-            items.Add(item);*/
             context.ToDoItems.Add(item);
             context.SaveChanges();
 
-            return Ok(StatusCodes.Status201Created);
+            return CreatedAtAction(nameof(ReadById), new { toDoItemsId = item.ToDoItemId }, ToDoItemGetResponseDto.FromDomain(item));
         }
 
         catch (Exception e)
@@ -54,7 +46,7 @@ public class ToDoItemsController : ControllerBase
 
         try
         {
-            var listOfItems = context.ToDoItems.Select(ToDoItemGetResponseDto.FromDomain).ToList();
+            var listOfItems = context.ToDoItems.AsNoTracking().Select(ToDoItemGetResponseDto.FromDomain).ToList();
 
             return Ok(listOfItems);
         }
@@ -70,7 +62,7 @@ public class ToDoItemsController : ControllerBase
     {
         try
         {
-            var item = context.ToDoItems.FirstOrDefault(x => x.ToDoItemId == toDoItemsId);
+            var item = context.ToDoItems.AsNoTracking().FirstOrDefault(x => x.ToDoItemId == toDoItemsId);
 
             if (item == null)
             {
