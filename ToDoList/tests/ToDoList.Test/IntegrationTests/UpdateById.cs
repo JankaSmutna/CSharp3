@@ -1,4 +1,4 @@
-/*namespace ToDoList.Test.IntegrationTests;
+namespace ToDoList.Test.IntegrationTests;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
@@ -68,4 +68,4 @@ public class UpdateByIdTests
             File.Delete(DbPath);
         }
     }
-}*/
+}
