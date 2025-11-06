@@ -1,31 +1,29 @@
 namespace ToDoList.WebApi;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ToDoList.Domain.DTOs;
 using ToDoList.Domain.Models;
-using ToDoList.Persistence;
+using ToDoList.Persistence.Repositories;
 
 [Route("api/[controller]")] //(https://)localhost:5000/api/ToDoItems - hledáme na tomto zdroji
 [ApiController] //třída podporující HTTP responses
 public class ToDoItemsController : ControllerBase
 {
-    private readonly ToDoItemsContext context;
+    private readonly IRepository<ToDoItem> repository;
 
-    public ToDoItemsController(ToDoItemsContext context)
+    public ToDoItemsController(IRepository<ToDoItem> repository)
     {
-        this.context = context;
+        this.repository = repository;
     }
 
     [HttpPost]
-    public ActionResult Create([FromBody] ToDoItemCreateRequestDto request)  //používáme DTO - Data Transfer Object
+    public ActionResult Create([FromBody] ToDoItemCreateRequestDto request)
     {
         var item = request.ToDomain();
 
         try
         {
-            context.ToDoItems.Add(item);
-            context.SaveChanges();
+            repository.Create(item);
 
             return CreatedAtAction(nameof(ReadById), new { toDoItemsId = item.ToDoItemId }, ToDoItemGetResponseDto.FromDomain(item));
         }
@@ -37,18 +35,18 @@ public class ToDoItemsController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<ToDoItemGetResponseDto>> Read() //api/ToDoItems GET
+    public ActionResult<IEnumerable<ToDoItemGetResponseDto>> Read()
     {
-        if (context.ToDoItems == null)
-        {
-            return NotFound(); //404
-        }
-
         try
         {
-            var listOfItems = context.ToDoItems.AsNoTracking().Select(ToDoItemGetResponseDto.FromDomain).ToList();
+            var listOfItems = repository.Read().Select(ToDoItemGetResponseDto.FromDomain).ToList();
 
-            return Ok(listOfItems);
+            if (listOfItems == null || listOfItems.Count == 0)
+            {
+                return NotFound(); //404
+            }
+
+            return Ok(listOfItems); //200
         }
 
         catch (Exception e)
@@ -58,11 +56,11 @@ public class ToDoItemsController : ControllerBase
     }
 
     [HttpGet("{toDoItemsId:int}")]
-    public ActionResult ReadById(int toDoItemsId) //api/ToDoItems/<id> GET
+    public ActionResult<ToDoItemGetResponseDto> ReadById(int toDoItemsId)
     {
         try
         {
-            var item = context.ToDoItems.AsNoTracking().FirstOrDefault(x => x.ToDoItemId == toDoItemsId);
+            var item = repository.ReadById(toDoItemsId);
 
             if (item == null)
             {
@@ -70,7 +68,7 @@ public class ToDoItemsController : ControllerBase
             }
 
             var dto = ToDoItemGetResponseDto.FromDomain(item);
-            return Ok(dto);
+            return Ok(dto); //200
         }
 
         catch (Exception e)
@@ -80,24 +78,18 @@ public class ToDoItemsController : ControllerBase
     }
 
     [HttpPut("{toDoItemsId:int}")]
-    public ActionResult UpdateById(int toDoItemsId, [FromBody] ToDoItemUpdateRequestDto request) // api/ToDoItems/<id> PUT
+    public ActionResult UpdateById(int toDoItemsId, [FromBody] ToDoItemUpdateRequestDto request)
     {
         var updatedItem = request.ToDomain();
 
         try
         {
-            var item = context.ToDoItems.FirstOrDefault(x => x.ToDoItemId == toDoItemsId);
+            bool itemWasUpdated = repository.UpdateById(toDoItemsId, updatedItem);
 
-            if (item == null)
+            if (!itemWasUpdated)
             {
                 return NotFound(); //404
             }
-
-            item.Name = updatedItem.Name;
-            item.Description = updatedItem.Description;
-            item.IsCompleted = updatedItem.IsCompleted;
-
-            context.SaveChanges();
 
             return NoContent(); //204
         }
@@ -109,19 +101,16 @@ public class ToDoItemsController : ControllerBase
     }
 
     [HttpDelete("{toDoItemsId:int}")]
-    public ActionResult DeleteById(int toDoItemsId) // api/ToDoItems/<id> DELETE
+    public ActionResult DeleteById(int toDoItemsId)
     {
         try
         {
-            var item = context.ToDoItems.FirstOrDefault(x => x.ToDoItemId == toDoItemsId);
+            bool itemWasDeleted = repository.DeleteById(toDoItemsId);
 
-            if (item == null)
+            if (!itemWasDeleted)
             {
                 return NotFound(); //404
             }
-
-            context.ToDoItems.Remove(item);
-            context.SaveChanges();
 
             return NoContent(); //204
         }
@@ -131,7 +120,4 @@ public class ToDoItemsController : ControllerBase
             return Problem(e.Message, null, StatusCodes.Status500InternalServerError); //500
         }
     }
-
-    //metoda pro přidání prvků do seznamu
-    public void AddItemToStorage(ToDoItem item) => context.ToDoItems.Add(item);
 }
