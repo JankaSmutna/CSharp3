@@ -28,7 +28,7 @@ public class ToDoItemsRepository : IRepository<ToDoItem>
         return context.ToDoItems.AsNoTracking().FirstOrDefault(x => x.ToDoItemId == id);
     }
 
-    public bool Update(int id, ToDoItem updatedItem)
+    public bool UpdateById(int id, ToDoItem updatedItem)
     {
         var existingItem = context.ToDoItems.FirstOrDefault(x => x.ToDoItemId == id);
 
@@ -45,7 +45,7 @@ public class ToDoItemsRepository : IRepository<ToDoItem>
         return true;
     }
 
-    public bool Delete(int id)
+    public bool DeleteById(int id)
     {
         var item = context.ToDoItems.FirstOrDefault(x => x.ToDoItemId == id);
 

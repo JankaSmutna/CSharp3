@@ -84,7 +84,7 @@ public class ToDoItemsController : ControllerBase
 
         try
         {
-            bool itemWasUpdated = repository.Update(toDoItemsId, updatedItem);
+            bool itemWasUpdated = repository.UpdateById(toDoItemsId, updatedItem);
 
             if (!itemWasUpdated)
             {
@@ -105,7 +105,7 @@ public class ToDoItemsController : ControllerBase
     {
         try
         {
-            bool itemWasDeleted = repository.Delete(toDoItemsId);
+            bool itemWasDeleted = repository.DeleteById(toDoItemsId);
 
             if (!itemWasDeleted)
             {

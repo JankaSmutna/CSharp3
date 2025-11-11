@@ -9,8 +9,8 @@ where T : class
 
     public T? ReadById(int id);
 
-    public bool Update(int id, T updatedItem);
+    public bool UpdateById(int id, T updatedItem);
 
-    public bool Delete(int id);
+    public bool DeleteById(int id);
 
 }
