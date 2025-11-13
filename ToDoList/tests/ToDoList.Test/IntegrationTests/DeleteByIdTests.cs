@@ -2,38 +2,40 @@ namespace ToDoList.Test.IntegrationTests;
 
 using Microsoft.AspNetCore.Mvc;
 using ToDoList.Domain.Models;
+using ToDoList.Persistence;
+using ToDoList.Persistence.Repositories;
+using ToDoList.WebApi;
 
 public class DeletyByIdTests
 {
     private const string DbPath = "../../../IntegrationTests/data/localdb_test.db";
 
     [Fact]
-    public void DeleteById_ReturnsNoContent_WhenItemExists()
+    public void Delete_ValidId_ReturnsNoContent()
     {
-        // Arrange
         TestBase.CreateDatabase();
-
-        var context = new ToDoItemsContextTest($"Data Source={DbPath}");
+        using var context = new ToDoItemsContext($"Data Source={DbPath}");
         context.Database.EnsureCreated();
 
-        // 3. Naplnění db
+        // Naplnění db
         var todoItem1 = new ToDoItem
         {
             ToDoItemId = 1,
-            Name = "Název 1",
-            Description = "Popis 1",
+            Name = "DeleteById method",
+            Description = "Testing the DeleteById method - NoContentResult",
             IsCompleted = false
         };
 
         context.ToDoItems.Add(todoItem1);
         context.SaveChanges();
 
-        var controller = new ToDoItemsControllerTest(context);
+        var repository = new ToDoItemsRepository(context);
+        var controller = new ToDoItemsController(repository);
 
         // Act
         var result = controller.DeleteById(1);
 
-        // Assert - vrací ok status 204
+        // Assert
         Assert.IsType<NoContentResult>(result);
 
         // Cleanup
@@ -41,37 +43,21 @@ public class DeletyByIdTests
     }
 
     [Fact]
-    public void DeleteById_RemovesItemCorrectly()
+    public void Delete_InvalidId_ReturnsNotFound()
     {
         // Arrange
         TestBase.CreateDatabase();
-
-        var context = new ToDoItemsContextTest($"Data Source={DbPath}");
+        using var context = new ToDoItemsContext($"Data Source={DbPath}");
         context.Database.EnsureCreated();
 
-        // 3. Naplnění db
-        for (int i = 1; i <= 5; i++)
-        {
-            var toDoItem = new ToDoItem
-            {
-                ToDoItemId = i,
-                Name = $"Název {i}",
-                Description = $"Popis {i}",
-                IsCompleted = false
-            };
-
-            context.ToDoItems.Add(toDoItem);
-        }
-
-        context.SaveChanges();
-
-        var controller = new ToDoItemsControllerTest(context);
+        var repository = new ToDoItemsRepository(context);
+        var controller = new ToDoItemsController(repository);
 
         // Act
-        controller.DeleteById(2);
-        var result = controller.ReadById(2);
+        int invalidId = -1;
+        var result = controller.DeleteById(invalidId);
 
-        // Assert - vrací status 404, pokud se snaží najít položku s Id = 2, která byla vymazána
+        // Assert
         Assert.IsType<NotFoundResult>(result);
 
         // Cleanup

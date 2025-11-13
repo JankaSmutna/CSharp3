@@ -3,30 +3,38 @@ namespace ToDoList.Test.IntegrationTests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ToDoList.Domain.DTOs;
+using ToDoList.Persistence;
+using ToDoList.Persistence.Repositories;
+using ToDoList.WebApi;
+using ToDoList.Test;
 
 public class CreateTests
 {
     private const string DbPath = "../../../IntegrationTests/data/localdb_test.db";
 
     [Fact]
-    public void Create_ReturnsStatus201Created_WhenItemIsValid()
+    public void Create_ValidRequest_ReturnsCreatedAtAction()
     {
         // Arrange
         TestBase.CreateDatabase();
-
-        var context = new ToDoItemsContextTest($"Data Source={DbPath}");
+        using var context = new ToDoItemsContext($"Data Source={DbPath}");
         context.Database.EnsureCreated();
 
-        var controller = new ToDoItemsControllerTest(context);
+        var repository = new ToDoItemsRepository(context);
+        var controller = new ToDoItemsController(repository);
         var dto = new ToDoItemCreateRequestDto("Název - test", "Popis - test", false);
 
         // Act
-        var result = controller.Create(dto) as OkObjectResult;
-        context.SaveChanges();
+        var result = controller.Create(dto);
 
-        // Assert - pokud přidáme validní položku do ToDoList, vrátí se 201
-        Assert.NotNull(result);
-        Assert.Equal(StatusCodes.Status201Created, result.Value);
+        // Assert
+        var createdResult = Assert.IsType<CreatedAtActionResult>(result);
+        Assert.Equal(StatusCodes.Status201Created, createdResult.StatusCode);
+
+        var responseDto = Assert.IsType<ToDoItemGetResponseDto>(createdResult.Value);
+        Assert.Equal(dto.Name, responseDto.Name);
+        Assert.Equal(dto.Description, responseDto.Description);
+        Assert.Equal(dto.IsCompleted, responseDto.IsCompleted);
 
         // Cleanup
         TestBase.DeleteDatabase();
@@ -37,13 +45,12 @@ public class CreateTests
     {
         // Arrange
         TestBase.CreateDatabase();
-
-        var context = new ToDoItemsContextTest($"Data Source={DbPath}");
+        using var context = new ToDoItemsContext($"Data Source={DbPath}");
         context.Database.EnsureCreated();
 
+        var repository = new ToDoItemsRepository(context);
+        var controller = new ToDoItemsController(repository);
         var dto = new ToDoItemCreateRequestDto("Název - test", "Popis - test", false);
-
-        var controller = new ToDoItemsControllerTest(context);
 
         // Act
         controller.Create(dto);
