@@ -1,5 +1,6 @@
 namespace ToDoList.Test.UnitTests;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using ToDoList.Domain.Models;
@@ -9,13 +10,12 @@ using ToDoList.WebApi;
 public class DeleteByIdTests
 {
     [Fact]
-    public void DeleteById_ReturnsNoContent_WhenItemIsDeleted()
+    public void Delete_DeleteByIdValidItemId_ReturnsNoContent()
     {
         // Arrange
         var repository = Substitute.For<IRepository<ToDoItem>>();
         var controller = new ToDoItemsController(repository);
 
-        // Simulace, že došlo ke smazání existující položky
         repository.DeleteById(1).Returns(true);
 
         // Act
@@ -23,16 +23,16 @@ public class DeleteByIdTests
 
         // Assert
         Assert.IsType<NoContentResult>(result);
+        repository.Received(1).DeleteById(Arg.Any<int>());
     }
 
     [Fact]
-    public void DeleteById_ReturnsNotFound_WhenItemDoesNotExist()
+    public void Delete_DeleteByIdInvalidItemId_ReturnsNotFound()
     {
         // Arrange
         var repository = Substitute.For<IRepository<ToDoItem>>();
         var controller = new ToDoItemsController(repository);
 
-        // Mock repository vrací false → položka neexistuje
         repository.DeleteById(Arg.Any<int>()).Returns(false);
 
         // Act
@@ -40,5 +40,26 @@ public class DeleteByIdTests
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
+        repository.Received(1).DeleteById(Arg.Any<int>());
     }
+
+    [Fact]
+    public void Delete_DeleteByIdUnhandledException_ReturnsInternalServerError()
+    {
+        // Arrange
+        var repository = Substitute.For<IRepository<ToDoItem>>();
+        var controller = new ToDoItemsController(repository);
+
+        repository.When(r => r.DeleteById(Arg.Any<int>()))
+                  .Do(x => throw new Exception("Unexpected error"));
+
+        // Act
+        var result = controller.DeleteById(1);
+
+        // Assert
+        var objectResult = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
+        repository.Received(1).DeleteById(Arg.Any<int>());
+    }
+
 }
