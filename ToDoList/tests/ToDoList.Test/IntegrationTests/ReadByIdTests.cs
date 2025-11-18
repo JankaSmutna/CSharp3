@@ -1,8 +1,12 @@
 namespace ToDoList.Test.IntegrationTests;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ToDoList.Domain.DTOs;
 using ToDoList.Domain.Models;
+using ToDoList.Persistence;
+using ToDoList.Persistence.Repositories;
+using ToDoList.WebApi;
 
 public class ReadByIdTests
 {
@@ -18,11 +22,10 @@ public class ReadByIdTests
     {
         // Arrange
         TestBase.CreateDatabase();
-
-        var context = new ToDoItemsContextTest($"Data Source={DbPath}");
+        using var context = new ToDoItemsContext($"Data Source={DbPath}");
         context.Database.EnsureCreated();
 
-        // 3. Naplnění db
+        // Naplnění db
         for (int i = 1; i <= 5; i++)
         {
             var toDoItem = new ToDoItem
@@ -38,16 +41,20 @@ public class ReadByIdTests
 
         context.SaveChanges();
 
-        var controller = new ToDoItemsControllerTest(context);
+        var repository = new ToDoItemsRepository(context);
+        var controller = new ToDoItemsController(repository);
 
         // Act
-        var result = controller.ReadById(id) as OkObjectResult;
+        var result = controller.ReadById(id);
 
         // Assert
         Assert.NotNull(result);
+        Assert.NotNull(result.Result);
 
-        var item = result.Value as ToDoItemGetResponseDto;
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
 
+        var item = Assert.IsType<ToDoItemGetResponseDto>(okResult.Value);
         Assert.Equal(id, item.ToDoItemId);
         Assert.Equal($"Název {id}", item.Name);
         Assert.Equal($"Popis {id}", item.Description);
@@ -64,17 +71,17 @@ public class ReadByIdTests
     {
         // Arrange
         TestBase.CreateDatabase();
-
-        var context = new ToDoItemsContextTest($"Data Source={DbPath}");
+        using var context = new ToDoItemsContext($"Data Source={DbPath}");
         context.Database.EnsureCreated();
 
-        var controller = new ToDoItemsControllerTest(context);
+        var repository = new ToDoItemsRepository(context);
+        var controller = new ToDoItemsController(repository);
 
         // Act
         var result = controller.ReadById(id);
 
-        // Assert - vrací status 404
-        Assert.IsType<NotFoundResult>(result);
+        // Assert
+        Assert.IsType<NotFoundResult>(result.Result);
 
         // Cleanup
         TestBase.DeleteDatabase();

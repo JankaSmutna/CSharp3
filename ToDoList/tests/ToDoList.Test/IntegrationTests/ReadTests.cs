@@ -1,6 +1,11 @@
 namespace ToDoList.Test.IntegrationTests;
 
+using Microsoft.AspNetCore.Mvc;
+using ToDoList.Domain.DTOs;
 using ToDoList.Domain.Models;
+using ToDoList.Persistence;
+using ToDoList.Persistence.Repositories;
+using ToDoList.WebApi;
 
 public class ReadTests
 {
@@ -11,11 +16,10 @@ public class ReadTests
     {
         // Arrange
         TestBase.CreateDatabase();
-
-        var context = new ToDoItemsContextTest($"Data Source={DbPath}");
+        using var context = new ToDoItemsContext($"Data Source={DbPath}");
         context.Database.EnsureCreated();
 
-        // 3. Naplnění db
+        // Naplnění db
         var todoItem1 = new ToDoItem
         {
             ToDoItemId = 1,
@@ -36,14 +40,16 @@ public class ReadTests
         context.ToDoItems.Add(todoItem2);
         context.SaveChanges();
 
-        var controller = new ToDoItemsControllerTest(context);
+        var repository = new ToDoItemsRepository(context);
+        var controller = new ToDoItemsController(repository);
 
         // Act
         var result = controller.Read();
         var value = result.GetValue();
 
-        //Assert - ověření výsledku
+        // Assert
         Assert.NotNull(value);
+        Assert.IsType<ActionResult<IEnumerable<ToDoItemGetResponseDto>>>(result);
 
         var firstToDo = value.First();
         Assert.Equal(todoItem1.ToDoItemId, firstToDo.ToDoItemId);
