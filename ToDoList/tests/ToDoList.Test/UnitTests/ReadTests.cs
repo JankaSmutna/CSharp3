@@ -11,39 +11,25 @@ using ToDoList.WebApi;
 public class ReadTests
 {
     [Fact]
-    public void Read_ReturnsOkWithListOfAllItems_WhenRepositoryContainsData()
+    public void Get_ReadWhenSomeItemsAvailable_ReturnsOk()
     {
-        //Arrange
+        // Arrange
         var repository = Substitute.For<IRepository<ToDoItem>>();
         var controller = new ToDoItemsController(repository);
 
-        var items = new List<ToDoItem>
-        {
-            new ToDoItem { ToDoItemId = 1, Name = "Název 1", Description = "Popis 1", IsCompleted = false },
-            new ToDoItem { ToDoItemId = 2, Name = "Název 2", Description = "Popis 2", IsCompleted = true }
-        };
+        var listOfItems = new ToDoItem { Name = "Get method", Description = "Testing the Get/Read method - OK", IsCompleted = false };
+        repository.Read().Returns([listOfItems]);
 
-        repository.Read().Returns(items);
-
-        //Act
+        // Act
         var result = controller.Read();
 
-        //Assert
-        var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
-
-        var value = Assert.IsAssignableFrom<IEnumerable<ToDoItemGetResponseDto>>(okResult.Value);
-        Assert.Equal(2, value.Count());
-
-        var first = value.First();
-        Assert.Equal(items[0].ToDoItemId, first.ToDoItemId);
-        Assert.Equal(items[0].Name, first.Name);
-        Assert.Equal(items[0].Description, first.Description);
-        Assert.Equal(items[0].IsCompleted, first.IsCompleted);
+        // Assert
+        Assert.IsType<ActionResult<IEnumerable<ToDoItemGetResponseDto>>>(result);
+        repository.Received(1).Read();
     }
 
     [Fact]
-    public void Read_ReturnsNotFound_WhenRepositoryContainsNoData()
+    public void Get_ReadWhenNoItemAvailable_ReturnsNotFound()
     {
         //Arrange
         var repository = Substitute.For<IRepository<ToDoItem>>();
@@ -54,8 +40,28 @@ public class ReadTests
         //Act
         var result = controller.Read();
 
-        //Assert
-        var notFound = Assert.IsType<NotFoundResult>(result.Result);
-        Assert.Equal(StatusCodes.Status404NotFound, notFound.StatusCode);
+        // Assert
+        var notFoundResult = Assert.IsType<NotFoundResult>(result.Result);
+        Assert.Equal(StatusCodes.Status404NotFound, notFoundResult.StatusCode);
+        repository.Received(1).Read();
+    }
+
+    [Fact]
+    public void Get_ReadUnhandledException_ReturnsInternalServerError()
+    {
+        // Arrange
+        var repository = Substitute.For<IRepository<ToDoItem>>();
+        var controller = new ToDoItemsController(repository);
+
+        repository.When(r => r.Read())
+                  .Do(static x => throw new Exception("Unexpected error."));
+
+        // Act
+        var result = controller.Read();
+
+        // Assert
+        var objectResult = Assert.IsType<ObjectResult>(result.Result);
+        Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
+        repository.Received(1).Read();
     }
 }

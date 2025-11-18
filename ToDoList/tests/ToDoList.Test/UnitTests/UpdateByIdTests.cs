@@ -7,42 +7,38 @@ using ToDoList.Domain.DTOs;
 using ToDoList.Domain.Models;
 using ToDoList.Persistence.Repositories;
 using ToDoList.WebApi;
+using Microsoft.AspNetCore.Http;
 
 public class UpdateByIdTests
 {
     [Fact]
-    public void UpdateById_ReturnsNoContent_WhenItemIsUpdated()
+    public void Put_UpdateByIdWhenItemUpdated_ReturnsNoContent()
     {
         // Arrange
         var repository = Substitute.For<IRepository<ToDoItem>>();
         var controller = new ToDoItemsController(repository);
 
-        var updatedItem = new ToDoItemUpdateRequestDto(
-            Name: "Nový název",
-            Description: "Nový popis",
-            IsCompleted: true
-        );
+        var updateDto = new ToDoItemUpdateRequestDto("Put method", "Testing the Put/UpdateById method - NoContentResult", true);
 
-        // Simulace úspěšného updatování existující položky
         repository.UpdateById(1, Arg.Any<ToDoItem>()).Returns(true);
 
         // Act
-        var result = controller.UpdateById(1, updatedItem);
+        var result = controller.UpdateById(1, updateDto);
 
         // Assert
         Assert.IsType<NoContentResult>(result);
+        repository.Received(1).UpdateById(Arg.Any<int>(), Arg.Any<ToDoItem>());
     }
 
     [Fact]
-    public void UpdateById_ReturnsNotFound_WhenItemDoesNotExist()
+    public void Put_UpdateByIdWhenIdNotFound_ReturnsNotFound()
     {
         // Arrange
         var repository = Substitute.For<IRepository<ToDoItem>>();
         var controller = new ToDoItemsController(repository);
 
-        var updateDto = new ToDoItemUpdateRequestDto("Nový název", "Nový popis", true);
+        var updateDto = new ToDoItemUpdateRequestDto("Put method", "Testing the Put/UpdateById method - NotFoundResult", true);
 
-        // Simulace neexistující položky
         repository.UpdateById(Arg.Any<int>(), Arg.Any<ToDoItem>()).Returns(false);
 
         // Act
@@ -50,5 +46,27 @@ public class UpdateByIdTests
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
+        repository.Received(1).UpdateById(Arg.Any<int>(), Arg.Any<ToDoItem>());
+    }
+
+    [Fact]
+    public void Put_UpdateByIdUnhandledException_ReturnsInternalServerError()
+    {
+        // Arrange
+        var repository = Substitute.For<IRepository<ToDoItem>>();
+        var controller = new ToDoItemsController(repository);
+
+        var updateDto = new ToDoItemUpdateRequestDto("Put method", "Testing the Put/UpdateById method - InternalServerError", true);
+
+        repository.When(r => r.UpdateById(Arg.Any<int>(), Arg.Any<ToDoItem>())).Do(x => throw new Exception("Unexpected error"));
+
+        // Act
+        var result = controller.UpdateById(1, updateDto);
+
+        // Assert
+        var statusCodeResult = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(StatusCodes.Status500InternalServerError, statusCodeResult.StatusCode);
+
+        repository.Received(1).UpdateById(Arg.Any<int>(), Arg.Any<ToDoItem>());
     }
 }
