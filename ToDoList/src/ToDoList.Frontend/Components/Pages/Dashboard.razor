@@ -1,24 +1,29 @@
 @using Microsoft.VisualBasic
 @using ToDoList.Frontend.Models
+@using System.Linq;
 <div>
     <h2>ToDoItems dashboard</h2>
     <table>
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Název</th>
+                <th>
+                    <button @onclick="OrderById" class="btn btn-primary">Řazení podle ID</button>
+                </th>
+                <th>
+                    <button @onclick="OrderByName" class="btn btn-primary">Řazení podle názvu</button>
+                </th>
                 <th>Popis</th>
                 <th>Dokončeno</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in testData)
+            @foreach (var item in sortedData)
             {
                 <tr>
                     <td>@item.Id</td>
                     <td>@item.Name</td>
                     <td>@item.Description</td>
-                    <td>@(item.IsCompleted ? "Dokonceny" : "Nedokonceny")</td>
+                    <td>@(item.IsCompleted ? "Ano" : "Ne")</td>
                 </tr>
             }
         </tbody>
@@ -35,4 +40,20 @@ new ToDoItemView(4, "Cvičit", "Běhání v parku", false),
 new ToDoItemView(5, "Přečíst knihu", "Kapitola 5", true)
 };
 
+    private List<ToDoItemView> sortedData = new List<ToDoItemView>();
+
+    protected override void OnInitialized()
+    {
+        sortedData = testData.ToList();
+    }
+
+    private void OrderById()
+    {
+        sortedData = testData.OrderBy(x => x.Id).ToList();
+    }
+
+    private void OrderByName()
+    {
+        sortedData = testData.OrderBy(x => x.Name).ToList();
+    }
 }
