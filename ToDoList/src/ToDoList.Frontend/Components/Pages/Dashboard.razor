@@ -1,11 +1,6 @@
 @using Microsoft.VisualBasic
-@using System.Threading.Tasks
-@using ToDoList.Frontend.Clients
 @using ToDoList.Frontend.Models
 @using System.Linq;
-
-@inject IToDoItemsClient toDoItemsClient
-
 <div>
     <h2>ToDoItems dashboard</h2>
     <table>
@@ -47,11 +42,9 @@ new ToDoItemView(5, "Přečíst knihu", "Kapitola 5", true)
 
     private List<ToDoItemView> sortedData = new List<ToDoItemView>();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        //sortedData = testData.ToList();
-        sortedData = await toDoItemsClient.ReadItemsAsync();
-
+        sortedData = testData.ToList();
     }
 
     private void OrderById()

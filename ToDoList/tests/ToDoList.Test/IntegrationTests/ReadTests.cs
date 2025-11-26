@@ -1,6 +1,5 @@
 namespace ToDoList.Test.IntegrationTests;
 
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ToDoList.Domain.DTOs;
 using ToDoList.Domain.Models;
@@ -13,12 +12,12 @@ public class ReadTests
     private const string DbPath = "../../../IntegrationTests/data/localdb_test.db";
 
     [Fact]
-    public async Task Read_ReturnsAllItems()
+    public void Read_ReturnsAllItems()
     {
         // Arrange
         TestBase.CreateDatabase();
-        await using var context = new ToDoItemsContext($"Data Source={DbPath}");
-        await context.Database.EnsureCreatedAsync();
+        using var context = new ToDoItemsContext($"Data Source={DbPath}");
+        context.Database.EnsureCreated();
 
         // Naplnění db
         var todoItem1 = new ToDoItem
@@ -45,7 +44,7 @@ public class ReadTests
         var controller = new ToDoItemsController(repository);
 
         // Act
-        var result = await controller.Read();
+        var result = controller.Read();
         var value = result.GetValue();
 
         // Assert
