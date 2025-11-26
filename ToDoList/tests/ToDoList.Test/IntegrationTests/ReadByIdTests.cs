@@ -1,5 +1,6 @@
 namespace ToDoList.Test.IntegrationTests;
 
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ToDoList.Domain.DTOs;
@@ -18,12 +19,12 @@ public class ReadByIdTests
     [InlineData(3)]
     [InlineData(4)]
     [InlineData(5)]
-    public void ReadById_ReturnsCorrectResult_WhenIdExists(int id)
+    public async Task ReadById_ReturnsCorrectResult_WhenIdExists(int id)
     {
         // Arrange
         TestBase.CreateDatabase();
-        using var context = new ToDoItemsContext($"Data Source={DbPath}");
-        context.Database.EnsureCreated();
+        await using var context = new ToDoItemsContext($"Data Source={DbPath}");
+        await context.Database.EnsureCreatedAsync();
 
         // Naplnění db
         for (int i = 1; i <= 5; i++)
@@ -36,16 +37,16 @@ public class ReadByIdTests
                 IsCompleted = false
             };
 
-            context.ToDoItems.Add(toDoItem);
+            await context.ToDoItems.AddAsync(toDoItem);
         }
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
 
         var repository = new ToDoItemsRepository(context);
         var controller = new ToDoItemsController(repository);
 
         // Act
-        var result = controller.ReadById(id);
+        var result = await controller.ReadById(id);
 
         // Assert
         Assert.NotNull(result);
@@ -67,18 +68,18 @@ public class ReadByIdTests
     [Theory]
     [InlineData(999)]
     [InlineData(-1)]
-    public void ReadById_ReturnsNotFound_WhenIdDoesNotExist(int id)
+    public async Task ReadById_ReturnsNotFound_WhenIdDoesNotExist(int id)
     {
         // Arrange
         TestBase.CreateDatabase();
-        using var context = new ToDoItemsContext($"Data Source={DbPath}");
-        context.Database.EnsureCreated();
+        await using var context = new ToDoItemsContext($"Data Source={DbPath}");
+        await context.Database.EnsureCreatedAsync();
 
         var repository = new ToDoItemsRepository(context);
         var controller = new ToDoItemsController(repository);
 
         // Act
-        var result = controller.ReadById(id);
+        var result = await controller.ReadById(id);
 
         // Assert
         Assert.IsType<NotFoundResult>(result.Result);

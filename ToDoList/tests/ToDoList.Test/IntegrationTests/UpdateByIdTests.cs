@@ -1,5 +1,6 @@
 namespace ToDoList.Test.IntegrationTests;
 
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ToDoList.Domain.DTOs;
@@ -13,12 +14,12 @@ public class UpdateByIdTests
     private const string DbPath = "../../../IntegrationTests/data/localdb_test.db";
 
     [Fact]
-    public void UpdateById_ReturnsCorrectResult_WhenItemIsUpdated()
+    public async Task UpdateById_ReturnsCorrectResult_WhenItemIsUpdated()
     {
         // Arrange
         TestBase.CreateDatabase();
         using var context = new ToDoItemsContext($"Data Source={DbPath}");
-        context.Database.EnsureCreated();
+        await context.Database.EnsureCreatedAsync();
 
         // Naplnění db
         var toDoItem = new ToDoItem
@@ -30,14 +31,14 @@ public class UpdateByIdTests
         };
 
         context.ToDoItems.Add(toDoItem);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
 
         var repository = new ToDoItemsRepository(context);
         var controller = new ToDoItemsController(repository);
         var updateDto = new ToDoItemUpdateRequestDto("Nový název", "Nový popis", true);
 
         // Act
-        var result = controller.UpdateById(1, updateDto);
+        var result = await controller.UpdateById(1, updateDto);
 
         // Assert
         var noContentResult = Assert.IsType<NoContentResult>(result);
