@@ -1,6 +1,5 @@
 namespace ToDoList.Test.IntegrationTests;
 
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ToDoList.Domain.DTOs;
@@ -14,19 +13,19 @@ public class CreateTests
     private const string DbPath = "../../../IntegrationTests/data/localdb_test.db";
 
     [Fact]
-    public async Task Create_ValidRequest_ReturnsCreatedAtAction()
+    public void Create_ValidRequest_ReturnsCreatedAtAction()
     {
         // Arrange
         TestBase.CreateDatabase();
-        await using var context = new ToDoItemsContext($"Data Source={DbPath}");
-        await context.Database.EnsureCreatedAsync();
+        using var context = new ToDoItemsContext($"Data Source={DbPath}");
+        context.Database.EnsureCreated();
 
         var repository = new ToDoItemsRepository(context);
         var controller = new ToDoItemsController(repository);
         var dto = new ToDoItemCreateRequestDto("Název - test", "Popis - test", false);
 
         // Act
-        var result = await controller.Create(dto);
+        var result = controller.Create(dto);
 
         // Assert
         var createdResult = Assert.IsType<CreatedAtActionResult>(result);
@@ -42,20 +41,20 @@ public class CreateTests
     }
 
     [Fact]
-    public async Task Create_ContainsSingleItemWithCorrectId_WhenListWasClearedThenOneItemAdded()
+    public void Create_ContainsSingleItemWithCorrectId_WhenListWasClearedThenOneItemAdded()
     {
         // Arrange
         TestBase.CreateDatabase();
-        await using var context = new ToDoItemsContext($"Data Source={DbPath}");
-        await context.Database.EnsureCreatedAsync();
+        using var context = new ToDoItemsContext($"Data Source={DbPath}");
+        context.Database.EnsureCreated();
 
         var repository = new ToDoItemsRepository(context);
         var controller = new ToDoItemsController(repository);
         var dto = new ToDoItemCreateRequestDto("Název - test", "Popis - test", false);
 
         // Act
-        await controller.Create(dto);
-        var result = await controller.Read();
+        controller.Create(dto);
+        var result = controller.Read();
         var value = result.GetValue()!;
 
         // Assert - po smazání seznamu a přidání jedné položky má seznam právě jednu položku s Id = 1 a s očekávanými hodnotami dalších atributů
