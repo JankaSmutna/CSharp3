@@ -62,7 +62,7 @@ public class ReadByIdTests
         repository.ReadById(id).Returns(Task.FromResult<ToDoItem?>(null));
 
         // Act
-        var result = controller.ReadById(id);
+        var result = await controller.ReadById(id);
 
         // Assert
         Assert.IsType<NotFoundResult>(result.Result);
