@@ -15,7 +15,7 @@ public class DeletyByIdTests
     public async Task Delete_ValidId_ReturnsNoContent()
     {
         TestBase.CreateDatabase();
-        await using var context = new ToDoItemsContext($"Data Source={DbPath}");
+        using var context = new ToDoItemsContext($"Data Source={DbPath}");
         await context.Database.EnsureCreatedAsync();
 
         // Naplnění db
@@ -24,7 +24,8 @@ public class DeletyByIdTests
             ToDoItemId = 1,
             Name = "DeleteById method",
             Description = "Testing the DeleteById method - NoContentResult",
-            IsCompleted = false
+            IsCompleted = false,
+            Category = ""
         };
 
         await context.ToDoItems.AddAsync(todoItem1);
@@ -48,7 +49,7 @@ public class DeletyByIdTests
     {
         // Arrange
         TestBase.CreateDatabase();
-        await using var context = new ToDoItemsContext($"Data Source={DbPath}");
+        using var context = new ToDoItemsContext($"Data Source={DbPath}");
         await context.Database.EnsureCreatedAsync();
 
         var repository = new ToDoItemsRepository(context);

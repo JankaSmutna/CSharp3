@@ -18,7 +18,7 @@ public class CreateTests
     {
         // Arrange
         TestBase.CreateDatabase();
-        await using var context = new ToDoItemsContext($"Data Source={DbPath}");
+        using var context = new ToDoItemsContext($"Data Source={DbPath}");
         await context.Database.EnsureCreatedAsync();
 
         var repository = new ToDoItemsRepository(context);
@@ -47,7 +47,7 @@ public class CreateTests
     {
         // Arrange
         TestBase.CreateDatabase();
-        await using var context = new ToDoItemsContext($"Data Source={DbPath}");
+        using var context = new ToDoItemsContext($"Data Source={DbPath}");
         await context.Database.EnsureCreatedAsync();
 
         var repository = new ToDoItemsRepository(context);

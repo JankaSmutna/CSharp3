@@ -23,7 +23,7 @@ public class ReadByIdTests
     {
         // Arrange
         TestBase.CreateDatabase();
-        await using var context = new ToDoItemsContext($"Data Source={DbPath}");
+        using var context = new ToDoItemsContext($"Data Source={DbPath}");
         await context.Database.EnsureCreatedAsync();
 
         // Naplnění db
@@ -61,7 +61,7 @@ public class ReadByIdTests
         Assert.Equal($"Název {id}", item.Name);
         Assert.Equal($"Popis {id}", item.Description);
         Assert.False(item.IsCompleted);
-        Assert.Equal($"Kategorie {id}", item.Description);
+        Assert.Equal($"Kategorie {id}", item.Category);
 
         // Cleanup
         TestBase.DeleteDatabase();
@@ -74,7 +74,7 @@ public class ReadByIdTests
     {
         // Arrange
         TestBase.CreateDatabase();
-        await using var context = new ToDoItemsContext($"Data Source={DbPath}");
+        using var context = new ToDoItemsContext($"Data Source={DbPath}");
         await context.Database.EnsureCreatedAsync();
 
         var repository = new ToDoItemsRepository(context);
