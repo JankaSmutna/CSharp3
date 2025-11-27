@@ -26,7 +26,8 @@ public class ReadTests
             ToDoItemId = 1,
             Name = "Název 1",
             Description = "Popis 1",
-            IsCompleted = false
+            IsCompleted = false,
+            Category = "Kategorie 1"
         };
 
         var todoItem2 = new ToDoItem
@@ -34,7 +35,8 @@ public class ReadTests
             ToDoItemId = 2,
             Name = "Název 2",
             Description = "Popis 2",
-            IsCompleted = true
+            IsCompleted = true,
+            Category = "Kategorie 2"
         };
 
         context.ToDoItems.Add(todoItem1);
@@ -57,6 +59,7 @@ public class ReadTests
         Assert.Equal(todoItem1.Name, firstToDo.Name);
         Assert.Equal(todoItem1.Description, firstToDo.Description);
         Assert.Equal(todoItem1.IsCompleted, firstToDo.IsCompleted);
+        Assert.Equal(todoItem1.Category, firstToDo.Category);
 
         // Cleanup
         TestBase.DeleteDatabase();

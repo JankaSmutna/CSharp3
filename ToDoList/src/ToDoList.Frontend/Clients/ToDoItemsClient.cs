@@ -18,7 +18,7 @@ public class ToDoItemsClient : IToDoItemsClient
         var toDoItemViews = new List<ToDoItemView>();
         var response = await httpClient.GetFromJsonAsync<List<ToDoItemGetResponseDto>>("api/ToDoItems");
 
-        toDoItemViews = response.Select(dto => new ToDoItemView(dto.ToDoItemId, dto.Name, dto.Description, dto.IsCompleted)).ToList();
+        toDoItemViews = response.Select(dto => new ToDoItemView(dto.ToDoItemId, dto.Name, dto.Description, dto.IsCompleted, dto.Category)).ToList();
 
         return toDoItemViews;
     }

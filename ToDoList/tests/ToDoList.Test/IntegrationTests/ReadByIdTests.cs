@@ -34,7 +34,8 @@ public class ReadByIdTests
                 ToDoItemId = i,
                 Name = $"Název {i}",
                 Description = $"Popis {i}",
-                IsCompleted = false
+                IsCompleted = false,
+                Category = $"Kategorie {i}"
             };
 
             await context.ToDoItems.AddAsync(toDoItem);
@@ -60,6 +61,7 @@ public class ReadByIdTests
         Assert.Equal($"Název {id}", item.Name);
         Assert.Equal($"Popis {id}", item.Description);
         Assert.False(item.IsCompleted);
+        Assert.Equal($"Kategorie {id}", item.Description);
 
         // Cleanup
         TestBase.DeleteDatabase();

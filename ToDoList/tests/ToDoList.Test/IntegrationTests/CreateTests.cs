@@ -23,7 +23,7 @@ public class CreateTests
 
         var repository = new ToDoItemsRepository(context);
         var controller = new ToDoItemsController(repository);
-        var dto = new ToDoItemCreateRequestDto("Název - test", "Popis - test", false);
+        var dto = new ToDoItemCreateRequestDto("Název - test", "Popis - test", false, "Kategorie - test");
 
         // Act
         var result = await controller.Create(dto);
@@ -36,6 +36,7 @@ public class CreateTests
         Assert.Equal(dto.Name, responseDto.Name);
         Assert.Equal(dto.Description, responseDto.Description);
         Assert.Equal(dto.IsCompleted, responseDto.IsCompleted);
+        Assert.Equal(dto.Category, responseDto.Category);
 
         // Cleanup
         TestBase.DeleteDatabase();
@@ -51,7 +52,7 @@ public class CreateTests
 
         var repository = new ToDoItemsRepository(context);
         var controller = new ToDoItemsController(repository);
-        var dto = new ToDoItemCreateRequestDto("Název - test", "Popis - test", false);
+        var dto = new ToDoItemCreateRequestDto("Název - test", "Popis - test", false, "Kategorie - test");
 
         // Act
         await controller.Create(dto);
