@@ -1,5 +1,6 @@
 namespace ToDoList.Test.IntegrationTests;
 
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ToDoList.Domain.DTOs;
