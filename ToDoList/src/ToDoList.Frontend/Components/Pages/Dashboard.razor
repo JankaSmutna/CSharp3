@@ -19,12 +19,22 @@
         <tbody>
             @foreach (var item in sortedData)
             {
-                <tr class="table-light">
+                <tr class="@GetRowClass(item)">
                     <td>@item.Id</td>
                     <td>@item.Name</td>
                     <td>@item.Description</td>
-                    <td>@(item.IsCompleted ? "Ano" : "Ne")</td>
-                    <td><button class="btn btn-success" @onclick="() => EditItem(item)">Edit</button></td>
+                    <td>@(item.IsCompleted ? "Yes" : "No")</td>
+                    <td>
+                        <button class="btn btn-success" @onclick="() => ToggleCompleted(item)">
+                            @(item.IsCompleted ? "Mark Incomplete" : "Mark Complete")
+                        </button>
+                        <button class="btn btn-warning" @onclick="() => EditItem(item)">
+                            <i class="bi bi-pencil"></i> Edit
+                        </button>
+                        <button class="btn btn-danger" @onclick="() => DeleteItem(item)" title="Delete Item">
+                            <i class="bi bi-trash"></i> Delete
+                        </button>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -44,14 +54,38 @@
         sortedData = sortedData.OrderBy(item => item.Id).ToList();
     }
 
+    public async Task ToggleCompleted(ToDoItemView item)
+    {
+        item.IsCompleted = !item.IsCompleted;
+
+        await toDoItemsClient.UpdateItemAsync(item);
+
+        sortedData = await toDoItemsClient.ReadItemsAsync();
+
+        StateHasChanged();
+    }
+
+    private string GetRowClass(ToDoItemView item)
+    {
+        return item.IsCompleted ? "table-success" : "table-light";
+    }
+
     public void EditItem(ToDoItemView toDoItem)
     {
         NavigationManager.NavigateTo($"editToDoItem/{toDoItem.Id}");
     }
 
+    public async Task DeleteItem(ToDoItemView item)
+    {
+        await toDoItemsClient.DeleteItemAsync(item.Id);
+
+        sortedData = await toDoItemsClient.ReadItemsAsync();
+
+        StateHasChanged();
+    }
+
     protected override async Task OnInitializedAsync()
     {
-        //sortedData = testData.ToList();
         sortedData = await toDoItemsClient.ReadItemsAsync();
     }
 }

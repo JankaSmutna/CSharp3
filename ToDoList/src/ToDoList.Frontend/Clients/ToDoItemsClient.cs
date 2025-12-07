@@ -14,18 +14,18 @@ public class ToDoItemsClient : IToDoItemsClient
 
     public async Task<List<ToDoItemView>> ReadItemsAsync()
     {
-        var toDoItemViews = new List<ToDoItemView>();
         var response = await httpClient.GetFromJsonAsync<List<ToDoItemGetResponseDto>>("api/ToDoItems");
 
-        toDoItemViews = response.Select(dto => new ToDoItemView()
+        if (response is null)
+            return new List<ToDoItemView>();
+
+        return response.Select(dto => new ToDoItemView
         {
             Id = dto.ToDoItemId,
             Name = dto.Name,
             Description = dto.Description,
             IsCompleted = dto.IsCompleted
         }).ToList();
-
-        return toDoItemViews;
     }
 
     public async Task<ToDoItemView?> ReadItemByIdAsync(int itemId)
@@ -51,5 +51,10 @@ public class ToDoItemsClient : IToDoItemsClient
         // try {}
         var itemRequest = new ToDoItemUpdateRequestDto(item.Name, item.Description, item.IsCompleted);
         var response = await httpClient.PutAsJsonAsync($"api/ToDoItems/{item.Id}", itemRequest);
+    }
+
+    public async Task DeleteItemAsync(int itemId)
+    {
+        var response = await httpClient.DeleteAsync($"api/ToDoItems/{itemId}");
     }
 }
