@@ -28,7 +28,7 @@ public class UpdateByIdTests
             Name = "Název",
             Description = "Popis",
             IsCompleted = false,
-            Category = ""
+            Category = "Kategorie"
         };
 
         context.ToDoItems.Add(toDoItem);
