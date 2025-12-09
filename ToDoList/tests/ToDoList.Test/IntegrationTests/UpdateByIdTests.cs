@@ -27,7 +27,8 @@ public class UpdateByIdTests
             ToDoItemId = 1,
             Name = "Název",
             Description = "Popis",
-            IsCompleted = false
+            IsCompleted = false,
+            Category = ""
         };
 
         context.ToDoItems.Add(toDoItem);
@@ -35,7 +36,7 @@ public class UpdateByIdTests
 
         var repository = new ToDoItemsRepository(context);
         var controller = new ToDoItemsController(repository);
-        var updateDto = new ToDoItemUpdateRequestDto("Nový název", "Nový popis", true);
+        var updateDto = new ToDoItemUpdateRequestDto("Nový název", "Nový popis", true, "Nová kategorie");
 
         // Act
         var result = await controller.UpdateById(1, updateDto);
@@ -49,6 +50,7 @@ public class UpdateByIdTests
         Assert.Equal("Nový název", updatedItem.Name);
         Assert.Equal("Nový popis", updatedItem.Description);
         Assert.True(updatedItem.IsCompleted);
+        Assert.Equal("Nová kategorie", updatedItem.Category);
 
         // Cleanup
         TestBase.DeleteDatabase();

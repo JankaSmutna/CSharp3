@@ -24,7 +24,8 @@ public class ToDoItemsClient : IToDoItemsClient
             Id = dto.ToDoItemId,
             Name = dto.Name,
             Description = dto.Description,
-            IsCompleted = dto.IsCompleted
+            IsCompleted = dto.IsCompleted,
+            Category = dto.Category
         }).ToList();
     }
 
@@ -42,14 +43,15 @@ public class ToDoItemsClient : IToDoItemsClient
             Id = response.ToDoItemId,
             Name = response.Name,
             Description = response.Description,
-            IsCompleted = response.IsCompleted
+            IsCompleted = response.IsCompleted,
+            Category = response.Category
         };
     }
 
     public async Task UpdateItemAsync(ToDoItemView item)
     {
         // try {}
-        var itemRequest = new ToDoItemUpdateRequestDto(item.Name, item.Description, item.IsCompleted);
+        var itemRequest = new ToDoItemUpdateRequestDto(item.Name, item.Description, item.IsCompleted, item.Category);
         var response = await httpClient.PutAsJsonAsync($"api/ToDoItems/{item.Id}", itemRequest);
     }
 

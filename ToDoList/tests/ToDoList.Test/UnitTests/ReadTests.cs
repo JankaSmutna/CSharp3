@@ -18,7 +18,7 @@ public class ReadTests
         var repository = Substitute.For<IRepositoryAsync<ToDoItem>>();
         var controller = new ToDoItemsController(repository);
 
-        var listOfItems = new ToDoItem { Name = "Get method", Description = "Testing the Get/Read method - OK", IsCompleted = false };
+        var listOfItems = new ToDoItem { Name = "Get method", Description = "Testing the Get/Read method - OK", IsCompleted = false, Category = "" };
         repository.Read().Returns([listOfItems]);
 
         // Act

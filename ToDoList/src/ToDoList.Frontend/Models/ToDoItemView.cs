@@ -6,4 +6,5 @@ public class ToDoItemView
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;
     public bool IsCompleted { get; set; }
+    public string? Category { get; set; }
 }

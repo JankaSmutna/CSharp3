@@ -30,7 +30,8 @@ public class ReadByIdTests
             ToDoItemId = id,
             Name = $"Get method {id}",
             Description = $"Testing the Get/ReadById method - OK {id}",
-            IsCompleted = false
+            IsCompleted = false,
+            Category = $"Category {id}"
         };
 
         repository.ReadById(id).Returns(Task.FromResult<ToDoItem?>(toDoItem));
@@ -46,6 +47,7 @@ public class ReadByIdTests
         Assert.Equal($"Get method {id}", item.Name);
         Assert.Equal($"Testing the Get/ReadById method - OK {id}", item.Description);
         Assert.False(item.IsCompleted);
+        Assert.Equal($"Category {id}", item.Category);
 
         await repository.Received(1).ReadById(id);
     }
