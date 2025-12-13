@@ -46,11 +46,18 @@
     public int ItemId { get; set; }
 
     [SupplyParameterFromForm]
-    public ToDoItemView ToDoItemModel { get; set; }
+    public ToDoItemView? ToDoItemModel { get; set; }
 
     public async Task Submit()
     {
-        await toDoItemsClient.UpdateItemAsync(ToDoItemModel);
-        NavigationManager.NavigateTo("/");
+        if (ToDoItemModel != null)
+        {
+            await toDoItemsClient.UpdateItemAsync(ToDoItemModel);
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            Console.WriteLine("ToDo item is null.");
+        }
     }
 }
