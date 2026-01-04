@@ -1,6 +1,5 @@
 namespace ToDoList.Persistence.Repositories;
 
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using ToDoList.Domain.Models;
 
@@ -41,6 +40,7 @@ public class ToDoItemsRepository : IRepositoryAsync<ToDoItem>
         existingItem.Name = updatedItem.Name;
         existingItem.Description = updatedItem.Description;
         existingItem.IsCompleted = updatedItem.IsCompleted;
+        existingItem.Category = updatedItem.Category;
 
         await context.SaveChangesAsync();
         return true;

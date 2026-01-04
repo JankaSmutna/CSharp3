@@ -19,7 +19,7 @@ public class UpdateByIdTests
         var repository = Substitute.For<IRepositoryAsync<ToDoItem>>();
         var controller = new ToDoItemsController(repository);
 
-        var updateDto = new ToDoItemUpdateRequestDto("Put method", "Testing the Put/UpdateById method - NoContentResult", true);
+        var updateDto = new ToDoItemUpdateRequestDto("Put method", "Testing the Put/UpdateById method - NoContentResult", true, "");
 
         repository.UpdateById(1, Arg.Any<ToDoItem>()).Returns(true);
 
@@ -38,7 +38,7 @@ public class UpdateByIdTests
         var repository = Substitute.For<IRepositoryAsync<ToDoItem>>();
         var controller = new ToDoItemsController(repository);
 
-        var updateDto = new ToDoItemUpdateRequestDto("Put method", "Testing the Put/UpdateById method - NotFoundResult", true);
+        var updateDto = new ToDoItemUpdateRequestDto("Put method", "Testing the Put/UpdateById method - NotFoundResult", true, "");
 
         repository.UpdateById(Arg.Any<int>(), Arg.Any<ToDoItem>()).Returns(Task.FromResult(false));
 
@@ -57,7 +57,7 @@ public class UpdateByIdTests
         var repository = Substitute.For<IRepositoryAsync<ToDoItem>>();
         var controller = new ToDoItemsController(repository);
 
-        var updateDto = new ToDoItemUpdateRequestDto("Put method", "Testing the Put/UpdateById method - InternalServerError", true);
+        var updateDto = new ToDoItemUpdateRequestDto("Put method", "Testing the Put/UpdateById method - InternalServerError", true, "");
 
         repository.When(r => r.UpdateById(Arg.Any<int>(), Arg.Any<ToDoItem>())).Do(x => throw new Exception("Unexpected error"));
 
