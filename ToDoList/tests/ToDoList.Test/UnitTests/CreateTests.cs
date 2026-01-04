@@ -18,7 +18,7 @@ public class CreateTests
         var repository = Substitute.For<IRepositoryAsync<ToDoItem>>();
         var controller = new ToDoItemsController(repository);
 
-        var dto = new ToDoItemCreateRequestDto("Post method", "Testing the Post/Create method - CreatedAtAction", false);
+        var dto = new ToDoItemCreateRequestDto("Post method", "Testing the Post/Create method - CreatedAtAction", false, "");
 
         // Act
         var result = await controller.Create(dto);
@@ -31,6 +31,7 @@ public class CreateTests
         Assert.Equal(dto.Name, responseDto.Name);
         Assert.Equal(dto.Description, responseDto.Description);
         Assert.Equal(dto.IsCompleted, responseDto.IsCompleted);
+        Assert.Equal(dto.Category, responseDto.Category);
         await repository.Received(1).Create(Arg.Any<ToDoItem>());
     }
 
@@ -41,7 +42,7 @@ public class CreateTests
         var repository = Substitute.For<IRepositoryAsync<ToDoItem>>();
         var controller = new ToDoItemsController(repository);
 
-        var dto = new ToDoItemCreateRequestDto("Post method", "Testing the Post/Create method - InternalServerError", false);
+        var dto = new ToDoItemCreateRequestDto("Post method", "Testing the Post/Create method - InternalServerError", false, "");
 
         repository.When(r => r.Create(Arg.Any<ToDoItem>()))
                   .Do(x => throw new Exception("Unexpected error"));
