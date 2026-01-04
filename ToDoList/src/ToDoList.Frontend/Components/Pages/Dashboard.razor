@@ -1,34 +1,42 @@
-@using Microsoft.VisualBasic
-@using System.Threading.Tasks
 @using ToDoList.Frontend.Clients
 @using ToDoList.Frontend.Models
-@using System.Linq;
 
 @inject IToDoItemsClient toDoItemsClient
+@inject NavigationManager NavigationManager
 
 <div>
-    <h2>ToDoItems dashboard</h2>
-    <table>
-        <thead>
+    <h2>ToDo Items Dashboard</h2>
+    <table class="table table-hover mt-3">
+        <thead class="table-dark">
             <tr>
-                <th>
-                    <button @onclick="OrderById" class="btn btn-primary">Řazení podle ID</button>
-                </th>
-                <th>
-                    <button @onclick="OrderByName" class="btn btn-primary">Řazení podle názvu</button>
-                </th>
-                <th>Popis</th>
-                <th>Dokončeno</th>
+                <th><button class="btn btn-secondary" @onclick="OrderById">Sort by Id</button></th>
+                <th><button class="btn btn-primary" @onclick="OrderByName">Sort by Name</button></th>
+                <th>Description</th>
+                <th>IsCompleted</th>
+                <th>Category</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var item in sortedData)
             {
-                <tr>
+                <tr class="@GetRowClass(item)">
                     <td>@item.Id</td>
                     <td>@item.Name</td>
                     <td>@item.Description</td>
-                    <td>@(item.IsCompleted ? "Ano" : "Ne")</td>
+                    <td>@(item.IsCompleted ? "Yes" : "No")</td>
+                    <td>@item.Category</td>
+                    <td>
+                        <button class="btn btn-warning" @onclick="() => EditItem(item)">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-danger" @onclick="() => DeleteItem(item)" title="Delete Item">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        <button class="btn btn-success" @onclick="() => ToggleCompleted(item)">
+                            @(item.IsCompleted ? "Mark Incomplete" : "Mark Complete")
+                        </button>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -36,31 +44,50 @@
 </div>
 
 @code {
-    private List<ToDoItemView> testData = new()
-{
-new ToDoItemView(1, "Nakoupit potraviny", "Mléko, chléb, vejce", false, ""),
-new ToDoItemView(2, "Dokončit projekt", "Implementovat všechny funkce", true, ""),
-new ToDoItemView(3, "Zavolat mamince", "Domluvit víkend", false, ""),
-new ToDoItemView(4, "Cvičit", "Běhání v parku", false, ""),
-new ToDoItemView(5, "Přečíst knihu", "Kapitola 5", true, "")
-};
+    private List<ToDoItemView> sortedData = new();
 
-    private List<ToDoItemView> sortedData = new List<ToDoItemView>();
+    public void OrderByName()
+    {
+        sortedData = sortedData.OrderBy(item => item.Name).ToList();
+    }
+
+    public void OrderById()
+    {
+        sortedData = sortedData.OrderBy(item => item.Id).ToList();
+    }
+
+    public async Task ToggleCompleted(ToDoItemView item)
+    {
+        item.IsCompleted = !item.IsCompleted;
+
+        await toDoItemsClient.UpdateItemAsync(item);
+
+        sortedData = await toDoItemsClient.ReadItemsAsync();
+
+        StateHasChanged();
+    }
+
+    private string GetRowClass(ToDoItemView item)
+    {
+        return item.IsCompleted ? "table-success" : "table-light";
+    }
+
+    public void EditItem(ToDoItemView toDoItem)
+    {
+        NavigationManager.NavigateTo($"editToDoItem/{toDoItem.Id}");
+    }
+
+    public async Task DeleteItem(ToDoItemView item)
+    {
+        await toDoItemsClient.DeleteItemAsync(item.Id);
+
+        sortedData = await toDoItemsClient.ReadItemsAsync();
+
+        StateHasChanged();
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        //sortedData = testData.ToList();
         sortedData = await toDoItemsClient.ReadItemsAsync();
-
-    }
-
-    private void OrderById()
-    {
-        sortedData = testData.OrderBy(x => x.Id).ToList();
-    }
-
-    private void OrderByName()
-    {
-        sortedData = testData.OrderBy(x => x.Name).ToList();
     }
 }
